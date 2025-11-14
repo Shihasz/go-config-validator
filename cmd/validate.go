@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/Shihasz/go-config-validator/internal/utils"
 	"github.com/spf13/cobra"
 )
 
@@ -23,9 +24,24 @@ compliance errors.`,
 			os.Exit(1)
 		}
 
-		// Core logic TODO
-		fmt.Printf("Validation request received for file: %s\n", configPath)
-		fmt.Println("File read and parsing logic to be implemented.")
+		fmt.Printf("Starting validation for file: %s\n", configPath)
+
+		// Step 1: Check file existence and access using utility function
+		if err := utils.CheckFileAccess(configPath); err != nil {
+			fmt.Printf("Validation Failed: %v\n", err)
+			os.Exit(1)
+		}
+
+		// Step 2: Read the file contents using the highly efficient os.ReadFile
+		content, err := os.ReadFile(configPath)
+		if err != nil {
+			fmt.Printf("Validation Failed: Could not read file content: %v\n", err)
+			os.Exit(1)
+		}
+
+		// Step 3: Success message and next steps indicator
+		fmt.Printf("Successfully read %d bytes from configuration file.\n", len(content))
+		fmt.Println("Next Step: Determining file type (YAML/JSON) and parsing content.")
 	},
 }
 
