@@ -1,10 +1,13 @@
 package utils
 
 import (
+	"encoding/json"
 	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
+
+	"gopkg.in/yaml.v3"
 )
 
 // ConfigType represents the supported configuration file types.
@@ -56,4 +59,28 @@ func CheckFileAccess(path string) error {
 	}
 
 	return nil
+}
+
+// ParseConfigContent takes raw byte content and the file type,
+// then unmarshals it into a generic map.
+func ParseConfigContent(content []byte, configType ConfigType) (map[string]interface{}, error) {
+	var data map[string]interface{}
+
+	switch configType {
+	case YAML:
+		// Use yaml.v3 to unmarshal YAML content
+		if err := yaml.Unmarshal(content, &data); err != nil {
+			return nil, fmt.Errorf("failed to unmarshal YAML content: %w", err)
+		}
+	case JSON:
+		// Use standard library for JSON content
+		if err := json.Unmarshal(content, &data); err != nil {
+			return nil, fmt.Errorf("failed to unmarshal JSON content: %w", err)
+		}
+	default:
+		return nil, fmt.Errorf("unsupported configuration type: %s", configType.String())
+	}
+
+	// Return the parsed data map
+	return data, nil
 }

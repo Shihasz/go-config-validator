@@ -39,9 +39,24 @@ compliance errors.`,
 			os.Exit(1)
 		}
 
-		// Step 3: Success message and next steps indicator
-		fmt.Printf("Successfully read %d bytes from configuration file.\n", len(content))
-		fmt.Println("Next Step: Determining file type (YAML/JSON) and parsing content.")
+		// Step 2: Infer the file type
+		configType := utils.InferFileType(configPath)
+		if configType == utils.Unknown {
+			fmt.Printf("Validation Failed: Unsupported file extension for path: %s. Must be .yaml, .yml, or .json.\n", configPath)
+			os.Exit(1)
+		}
+		fmt.Printf("Inferred configuration type: **%s**\n", configType.String())
+
+		// Step 3: Parse the content
+		parsedData, err := utils.ParseConfigContent(content, configType)
+		if err != nil {
+			fmt.Printf("Validation Failed: Parsing Error: %v\n", err)
+			os.Exit(1)
+		}
+
+		// Step 4: Success and next steps
+		fmt.Printf("Successfully parsed configuration file with **%d** top-level keys.\n", len(parsedData))
+		fmt.Println("Next Step: Implementing custom validation rules.")
 	},
 }
 
